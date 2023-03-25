@@ -91,6 +91,9 @@ const Home: NextPage = () => {
     });
 
     console.log(body);
+
+    const {data} = await axios.post('/submit', body);
+    console.log(data);
   };
 
   const onConnect = useCallback(
@@ -257,6 +260,9 @@ const Home: NextPage = () => {
               </option>
               <option value={"azure"} {...dest("azure")}>
                 Azure
+              </option>
+              <option value={"on-premise"} {...dest("on-premise")}>
+                On-Premise
               </option>
             </select>
           </div>

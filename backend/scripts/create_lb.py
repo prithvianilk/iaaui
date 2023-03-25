@@ -14,9 +14,10 @@ def create_lb_from_template(template_file, folder, image_name):
 		f.write(output_text)
 
 def get_lb_endpoint(image_name):
-	response = ''
-	while response=='':
+	output = ''
+	while output=='':
 		response = subprocess.run(["kubectl", "get" ,"svc" ,f"{image_name}-loadbalancer", "-o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'"], text=True, capture_output=True)
 		output = response.stdout
+		print(output, response.stderr)
 		time.sleep(5)
 	return output
