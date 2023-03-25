@@ -1,4 +1,5 @@
 import jinja2
+import os
 
 def create_deployment_from_template(template_file, folder, image_name):
 	templateLoader = jinja2.FileSystemLoader(searchpath="./k8s")
@@ -9,3 +10,6 @@ def create_deployment_from_template(template_file, folder, image_name):
 	# to save the results
 	with open(f"{folder}/{template_file}-{image_name}.yaml", "w") as f:
 		f.write(output_text)
+
+def apply_deployment(folder, provider):
+	os.system(f"kubectl apply --context yg-{provider} -f {folder}")

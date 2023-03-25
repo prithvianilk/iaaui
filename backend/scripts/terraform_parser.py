@@ -1,8 +1,15 @@
 import json
 import os
 import shutil
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
 
 def create_terraform_files(cluster_name,desired_size,instance_type,node_group_name):
+    aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID', default=None)
+    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', default=None)
     path=create_temp_folder(cluster_name)
     with open(f"{os.getcwd()}/terraform/terraform.tfvars.json","r") as template_file:
         template_file_data=json.load(template_file)
@@ -19,11 +26,11 @@ def create_terraform_files(cluster_name,desired_size,instance_type,node_group_na
     backend "s3"{{
         region="ap-south-1"
         bucket="yg-hack-s3"
-        key="{0}-terraformstate/terraform.tfstate"
-        access_key = "{1}"
-        secret_key = "{2}"
+        key="{}-terraformstate/terraform.tfstate"
+        access_key = "{}"
+        secret_key = "{}"
     }}
-}}'''.format(cluster_name,os.getenv("AWS_ACCESS_KEY_ID"),os.getenv("AWS_SECRET_ACCESS_KEY_ID"))
+}}'''.format(cluster_name, aws_access_key_id, aws_secret_access_key)
     backend_data.write(backend_text)
     create_cluster(path)
 

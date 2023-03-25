@@ -2,6 +2,7 @@ from flask import Flask, request
 import json
 from scripts import check_cluster_change
 from scripts import create_deployment_from_template, build_and_push_image, clone_repo
+from scripts import apply_deployment
 import os
 import shutil
 
@@ -10,7 +11,7 @@ app = Flask(__name__)
 # body = [
 # 	{
 # 		"name":"cluser-1",
-# 		"provider":"AKS",
+# 		"provider":"EKS",
 # 		"numberOfHosts":2,
 # 		"apps":[
 # 			{
@@ -40,6 +41,7 @@ def submit():
 			clone_repo(app['app'], app['github_url'], folder)
 			build_and_push_image(app['app'], folder)
 			create_deployment_from_template("deployment", folder, app['name'])
+			apply_deployment(folder, cluster['provider'])
 
 			# delete folder
 			shutil.rmtree(folder)
