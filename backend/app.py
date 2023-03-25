@@ -73,7 +73,7 @@ def submit():
 		response.append(cluster_resp)
 
 		# delete folder
-		shutil.rmtree(folder)
+		# shutil.rmtree(folder)
 
 		return jsonify(response)
 

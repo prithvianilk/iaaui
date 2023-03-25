@@ -89,6 +89,9 @@ const Home: NextPage = () => {
     });
 
     console.log(body);
+
+    const {data} = await axios.post('/submit', body);
+    console.log(data);
   };
 
   const onConnect = useCallback(
