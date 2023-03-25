@@ -21,7 +21,7 @@ def submit():
 			os.makedirs(folder, mode=511, exist_ok=True)
 
 			# run scripts here
-			create_deployment_from_template("deployment", app['name'])
+			create_deployment_from_template("deployment", cluster['provider'], cluster['name'], app['name'])
 
 			# delete folder
 			shutil.rmtree(folder)
