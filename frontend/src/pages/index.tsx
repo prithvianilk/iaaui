@@ -25,8 +25,11 @@ const Home: NextPage = () => {
   const [rightPane, setRightPane] = useState(false);
   const [selectedNode, setSelectedNode] = useState({
     id: "",
-    data: { resourceType: "" },
+    data: { resourceType: "", label: "" },
   });
+  const [selectedCSP, setSelectedCSP] = useState("");
+  const [clusterName, setClusterName] = useState("Cluster");
+  const [numberOfHosts, setNumberOfHosts] = useState(1);
 
   const getNodeById = (id: string) => {
     return nodes.find((node) => node.id === id)?.data;
@@ -64,8 +67,6 @@ const Home: NextPage = () => {
         })),
       };
     });
-
-    console.log(body);
   };
 
   const onConnect = useCallback(
@@ -111,7 +112,6 @@ const Home: NextPage = () => {
       setRightPane(true);
     }
     await setSelectedNode(node);
-    console.log(node);
   };
 
   const onNodeDelete = async () => {
@@ -132,26 +132,82 @@ const Home: NextPage = () => {
 
   const resourceType = selectedNode.data.resourceType;
 
+  const onCloudSelect = (e: any) => {
+    selectedNode.data.label = String(e.target.value).toUpperCase();
+    const n: any = selectedNode;
+    setNodes((ns) => {
+      return ns
+        .filter((node) => {
+          return node.id != selectedNode.id;
+        })
+        .concat(n);
+    });
+    setSelectedCSP(e.target.value);
+  };
+
+  const dest = (cspName: string) => {
+    if (selectedNode.data.label.toLowerCase() === cspName.toLowerCase()) {
+      return { selected: true };
+    }
+    return {};
+  };
   const getDrawer = () => {
     if (resourceType === "cloud") {
       return (
-        <div className="flex flex-col justify-center">
+        <div
+          className="flex flex-col justify-center"
+        >
           <label className="text-center">Cloud Service Provider</label>
-          <div className="form-control">
-            <div className="input-group">
-              <select className="select-bordered select">
-                <option disabled selected>
-                  Select
-                </option>
-                <option>AWS</option>
-                <option>GCP</option>
-                <option>Azure</option>
-              </select>
-              <button className="btn">Go</button>
-            </div>
+          <div className="align-center flex flex-row justify-center">
+            <select
+              className="m-2 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              onChange={onCloudSelect}
+              key={String(selectedNode)}
+            >
+              <option disabled value={"select"} {...dest("Cloud Name")}>
+                Select
+              </option>
+              <option value={"aws"} {...dest("aws")}>
+                AWS
+              </option>
+              <option value={"gcp"} {...dest("gcp")}>
+                GCP
+              </option>
+              <option value={"azure"} {...dest("azure")}>
+                Azure
+              </option>
+            </select>
           </div>
         </div>
       );
+    } else if (resourceType === "cluster") {
+      return (
+        <div className="m-4">
+          <label>Cluster Name</label>
+          <input
+            value={clusterName}
+            type="text"
+            placeholder="Cluster"
+            onChange={(e) => setClusterName(e.currentTarget.value)}
+            className="input my-2 w-full max-w-xs"
+          />
+          <label>Number of hosts</label>
+          <input
+            type="text"
+            placeholder="1"
+            value={numberOfHosts}
+            onChange={(e) => {
+              try {
+                const newNumberOfHosts = Number.parseInt(e.currentTarget.value);
+                if (Number.isNaN(newNumberOfHosts)) return;
+                setNumberOfHosts(newNumberOfHosts);
+              } finally {
+              }
+            }}
+            className="input my-2 w-full max-w-xs"
+          />
+        </div>
+      )
     } else if (resourceType === "app") {
       return (
         <div className="flex flex-col justify-center">
@@ -199,6 +255,7 @@ const Home: NextPage = () => {
                 onDragOver={onDragOver}
                 onNodeClick={onNodeClick}
                 fitView
+                key={selectedCSP}
               >
                 <Controls />
               </ReactFlow>
@@ -224,7 +281,7 @@ const Home: NextPage = () => {
                     />
                   </svg>
                 </button>
-                <div>{getDrawer()}</div>
+                <div className="mt-16">{getDrawer()}</div>
                 <div className="align-center flex min-h-full flex-row justify-center">
                   <div className="absolute bottom-0 m-4">
                     <button

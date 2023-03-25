@@ -17,37 +17,11 @@ const Sidebar = ({ submit }: SidebarProps) => {
     event.dataTransfer.effectAllowed = "move";
   };
 
-  const [clusterName, setClusterName] = useState("Cluster");
-  const [numberOfHosts, setNumberOfHosts] = useState(1);
-
   return (
     <div className="flex h-full flex-col justify-between px-2 py-5">
       <div>
         <div className="flex flex-col justify-center">
-          <div className="mb-2 text-center text-lg">Create a cluster</div>
-          <label>Cluster Name</label>
-          <input
-            value={clusterName}
-            type="text"
-            placeholder="Cluster"
-            onChange={(e) => setClusterName(e.currentTarget.value)}
-            className="input my-2 w-full max-w-xs"
-          />
-          <label>Number of hosts</label>
-          <input
-            type="text"
-            placeholder="1"
-            value={numberOfHosts}
-            onChange={(e) => {
-              try {
-                const newNumberOfHosts = Number.parseInt(e.currentTarget.value);
-                if (Number.isNaN(newNumberOfHosts)) return;
-                setNumberOfHosts(newNumberOfHosts);
-              } finally {
-              }
-            }}
-            className="input my-2 w-full max-w-xs"
-          />
+          <div className="mb-2 text-center text-lg">Drag Resources</div>
           <hr className="my-5" />
           <div
             className="node w-full text-lg"
