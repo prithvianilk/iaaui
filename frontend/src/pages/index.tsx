@@ -23,7 +23,10 @@ const Home: NextPage = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [rightPane, setRightPane] = useState(false);
-  const [selectedNode, setSelectedNode] = useState({id:"", data:{resourceType:""}});
+  const [selectedNode, setSelectedNode] = useState({
+    id: "",
+    data: { resourceType: "" },
+  });
 
   const getNodeById = (id: string) => {
     return nodes.find((node) => node.id === id)?.data;
@@ -127,6 +130,48 @@ const Home: NextPage = () => {
     );
   };
 
+  const resourceType = selectedNode.data.resourceType;
+
+  const getDrawer = () => {
+    if (resourceType === "cloud") {
+      return (
+        <div className="flex flex-col justify-center">
+          <label className="text-center">Cloud Service Provider</label>
+          <div className="form-control">
+            <div className="input-group">
+              <select className="select-bordered select">
+                <option disabled selected>
+                  Select
+                </option>
+                <option>AWS</option>
+                <option>GCP</option>
+                <option>Azure</option>
+              </select>
+              <button className="btn">Go</button>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (resourceType === "app") {
+      return (
+        <div className="flex flex-col justify-center">
+          <label className="text-center">App Config</label>
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">What is your name?</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Type here"
+              className="input-bordered input w-full max-w-xs"
+            />
+          </div>
+          <button className="btn">Edit</button>
+        </div>
+      );
+    }
+  };
+
   return (
     <>
       <Head>
@@ -162,9 +207,7 @@ const Home: NextPage = () => {
               <div className="min-h-full w-1/5 bg-gray-100">
                 <button
                   className="btn-square btn absolute top-0 right-0 m-1"
-                  onClick={() => {
-                    setRightPane(false);
-                  }}
+                  onClick={() => setRightPane(false)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -181,28 +224,7 @@ const Home: NextPage = () => {
                     />
                   </svg>
                 </button>
-                <div className="bg-green">
-                  {selectedNode.data.resourceType == "cloud" ? (
-                    <div className="flex flex-col justify-center">
-                      <label>Cloud Service Provider</label>
-                      <div className="form-control">
-                        <div className="input-group">
-                          <select className="select-bordered select">
-                            <option disabled selected>
-                              Select
-                            </option>
-                            <option>AWS</option>
-                            <option>GCP</option>
-                            <option>Azure</option>
-                          </select>
-                          <button className="btn">Go</button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>AAA</>
-                  )}
-                </div>
+                <div>{getDrawer()}</div>
                 <div className="align-center flex min-h-full flex-row justify-center">
                   <div className="absolute bottom-0 m-4">
                     <button
