@@ -5,18 +5,15 @@ import Sidebar from "~/components/Sidebar";
 
 import { useCallback, useState } from "react";
 import ReactFlow, {
-  addEdge, Controls,
-  ReactFlowProvider, useEdgesState, useNodesState
+  addEdge,
+  Controls,
+  Node,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
 } from "reactflow";
 
-const initialNodes = [
-  {
-    id: "1",
-    type: "input",
-    data: { label: "Cluster" },
-    position: { x: 250, y: 5 },
-  },
-];
+const initialNodes: Node[] = [];
 
 let id = 0;
 const getId = () => {
@@ -36,7 +33,6 @@ const Home: NextPage = () => {
   };
 
   const submit = () => {
-    console.log(nodes);
     const body: any = {};
     edges.forEach(({ source: clusterId, target: appId }) => {
       const node = getNodeById(clusterId) as any;
@@ -72,7 +68,9 @@ const Home: NextPage = () => {
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       const label = event.dataTransfer.getData("label");
       const type = event.dataTransfer.getData("type");
-      const numberOfHosts = Number.parseInt(event.dataTransfer.getData("numberOfHosts"));
+      const numberOfHosts = Number.parseInt(
+        event.dataTransfer.getData("numberOfHosts")
+      );
 
       // @ts-ignore
       const position = reactFlowInstance.project({

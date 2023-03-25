@@ -45,9 +45,14 @@ const Sidebar = ({ submit }: SidebarProps) => {
         <input
           type="text"
           placeholder="1"
+          value={numberOfHosts}
           onChange={(e) => {
-            const numberOfHostsAsString = e.currentTarget.value;
-            setNumberOfHosts(Number.parseInt(numberOfHostsAsString));
+            try {
+              const newNumberOfHosts = Number.parseInt(e.currentTarget.value);
+              if (Number.isNaN(newNumberOfHosts)) return;
+              setNumberOfHosts(newNumberOfHosts);
+            } finally {
+            }
           }}
           className="input w-4/5 max-w-xs"
         />
