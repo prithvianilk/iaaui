@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import json
-from scripts import create_deployment_from_template
+from scripts import create_deployment_from_template, build_and_push_image, clone_repo
 import os
 import shutil
 
@@ -21,6 +21,8 @@ def submit():
 			os.makedirs(folder, mode=511, exist_ok=True)
 
 			# run scripts here
+			clone_repo(app['app'], app['github_url'])
+			build_and_push_image(app['app'])
 			create_deployment_from_template("deployment", cluster['provider'], cluster['name'], app['name'])
 
 			# delete folder
