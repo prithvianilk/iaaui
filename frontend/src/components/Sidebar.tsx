@@ -28,59 +28,59 @@ const Sidebar = ({ submit }: SidebarProps) => {
   };
 
   return (
-    <div className="px-2">
-      <div className="text-center text-lg">Create a cluster</div>
-      <div className="flex flex-col justify-center">
-        <label>Cluster Name</label>
-        <input
-          value={clusterName}
-          type="text"
-          placeholder="Cluster"
-          onChange={(e) => setClusterName(e.currentTarget.value)}
-          className="input w-4/5 max-w-xs"
-        />
-      </div>
-      <div className="flex flex-col justify-center">
-        <label>Number of hosts</label>
-        <input
-          type="text"
-          placeholder="1"
-          value={numberOfHosts}
-          onChange={(e) => {
-            try {
-              const newNumberOfHosts = Number.parseInt(e.currentTarget.value);
-              if (Number.isNaN(newNumberOfHosts)) return;
-              setNumberOfHosts(newNumberOfHosts);
-            } finally {
+    <div className="flex h-full flex-col justify-between px-2 py-5">
+      <div>
+        <div className="flex flex-col justify-center">
+          <div className="text-center text-lg mb-2">Create a cluster</div>
+          <label>Cluster Name</label>
+          <input
+            value={clusterName}
+            type="text"
+            placeholder="Cluster"
+            onChange={(e) => setClusterName(e.currentTarget.value)}
+            className="input w-full max-w-xs my-2"
+          />
+          <label>Number of hosts</label>
+          <input
+            type="text"
+            placeholder="1"
+            value={numberOfHosts}
+            onChange={(e) => {
+              try {
+                const newNumberOfHosts = Number.parseInt(e.currentTarget.value);
+                if (Number.isNaN(newNumberOfHosts)) return;
+                setNumberOfHosts(newNumberOfHosts);
+              } finally {
+              }
+            }}
+            className="input w-full max-w-xs my-2"
+          />
+          <div
+            className="node w-full text-lg my-2"
+            onDragStart={(event) =>
+              onDragStart(event, {
+                label: getClusterNameWithDefaults(),
+                nodeType: "input",
+              })
             }
-          }}
-          className="input w-4/5 max-w-xs"
-        />
+            draggable
+          >
+            {getClusterNameWithDefaults()}
+          </div>
+        </div>
+        <hr className="my-5" />
         <div
-          className="node w-2/3 text-lg"
+          className="node w-full text-lg"
           onDragStart={(event) =>
-            onDragStart(event, {
-              label: getClusterNameWithDefaults(),
-              nodeType: "input",
-            })
+            onDragStart(event, { label: "App", nodeType: "output" })
           }
           draggable
         >
-          {getClusterNameWithDefaults()}
+          App
         </div>
       </div>
-      <div
-        className="node w-2/3 text-lg"
-        onDragStart={(event) =>
-          onDragStart(event, { label: "App", nodeType: "output" })
-        }
-        draggable
-      >
-        App
-      </div>
-
-      <div>
-        <button className="btn" onClick={submit}>
+      <div className="flex justify-center">
+        <button className="btn w-4/5" onClick={submit}>
           Submit
         </button>
       </div>
