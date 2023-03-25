@@ -33,20 +33,33 @@ const Home: NextPage = () => {
   };
 
   const submit = () => {
-    const body: any = {};
+    const clusters: any = {};
     edges.forEach(({ source: clusterId, target: appId }) => {
-      const node = getNodeById(clusterId) as any;
+      const node = getNodeById(clusterId);
       const numberOfHosts = node.numberOfHosts;
-      const cluster = node.label;
-      if (!body[cluster]) {
-        body[cluster] = { numberOfHosts };
+      const clusterName = node.label;
+      if (!clusters[clusterId]) {
+        clusters[clusterId] = { name: clusterName, numberOfHosts, apps: [] };
       }
       const app = getNodeById(appId)?.label as string;
-      if (!body[cluster][app]) {
-        body[cluster][app] = 0;
+      if (!clusters[clusterId].apps[app]) {
+        clusters[clusterId].apps[app] = 0;
       }
-      body[cluster][app]++;
+      clusters[clusterId].apps[app]++;
     });
+
+    const body = Object.keys(clusters).map((cluster) => {
+      const { name, numberOfHosts, apps } = clusters[cluster];
+      return {
+        name,
+        numberOfHosts,
+        apps: Object.keys(apps).map((appName) => ({
+          appName,
+          replicas: apps[appName],
+        })),
+      };
+    });
+
     console.log(body);
   };
 
@@ -54,12 +67,6 @@ const Home: NextPage = () => {
     (params: any) => setEdges((eds) => addEdge(params, eds)),
     []
   );
-
-  const onContextMenu = (event:any) => {
-    event.preventDefault();
-    console.log("Click")
-
-  }
 
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
@@ -121,7 +128,6 @@ const Home: NextPage = () => {
                 onInit={setReactFlowInstance}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
-                onContextMenu={onContextMenu}
                 fitView
               >
                 <Controls />
