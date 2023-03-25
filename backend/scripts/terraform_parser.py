@@ -45,20 +45,24 @@ def create_temp_folder(cluster_name):
     return os.path.join(os.getcwd(),"temp_tf",cluster_name)
 
 def create_cluster(path):
+    
     os.system(f"terraform -chdir={path} init")
     os.system(f"terraform -chdir={path} plan")
     os.system(f"terraform -chdir={path} apply -auto-approve")
     os.system("aws eks --profile yg --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)")
 
 def check_cluster_change(data):
-    os.makedirs(os.path.join(os.getcwd(),"temp_tf"),exist_ok=True)
-    for cluster in data:
-        if not os.path.exists(os.path.join(os.getcwd(),"temp_tf",cluster['name'])):
-            create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
-        else:
-            with open(f"{os.getcwd()}/terraform/terraform.tfvars.json","r") as template_file:
-                template_file_data=json.load(template_file)
-            if template_file_data["numberOfHosts"]!=cluster["numberOfHosts"]:
+    if(data["provider"]=="on-prem"):
+        os.system(f"minikube start")
+    else:
+        os.makedirs(os.path.join(os.getcwd(),"temp_tf"),exist_ok=True)
+        for cluster in data:
+            if not os.path.exists(os.path.join(os.getcwd(),"temp_tf",cluster['name'])):
                 create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
-            os.system(f"aws eks --profile yg --region ap-south-1 update-kubeconfig --name {template_file_data['name']}")
+            else:
+                with open(f"{os.getcwd()}/terraform/terraform.tfvars.json","r") as template_file:
+                    template_file_data=json.load(template_file)
+                if template_file_data["numberOfHosts"]!=cluster["numberOfHosts"]:
+                    create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
+                os.system(f"aws eks --profile yg --region ap-south-1 update-kubeconfig --name {template_file_data['name']}")
         
