@@ -35,11 +35,17 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # 	}
 # ]
 
+def configure_aws():
+	aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID', default=None)
+	aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', default=None)
+	os.system(f'aws configure --profile yg set aws_access_key_id {aws_access_key_id}')
+	os.system(f'aws configure --profile yg set aws_secret_access_key {aws_secret_access_key}');
+
 @app.post("/submit")
 @cross_origin()
 def submit():
 	data = request.get_json()
-	#Makes changes to the cluster
+	configure_aws()
 	check_cluster_change(data)
 
 	response = []

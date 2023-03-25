@@ -11,10 +11,7 @@ def clone_repo(image_name, github_url, base_folder):
 
 
 def build_and_push_image(image_name, base_folder):
-    aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID', default=None)
-    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', default=None)
-    os.system(
-        f'./push_docker_image.sh {image_name} {base_folder} {aws_access_key_id} {aws_secret_access_key}')
+    os.system(f'./push_docker_image.sh {image_name} {base_folder}')
 
 
 if __name__ == "__main__":
