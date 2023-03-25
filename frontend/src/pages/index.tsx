@@ -1,25 +1,19 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import React, { useRef } from "react";
+import { useRef } from "react";
 import Sidebar from "~/components/Sidebar";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import ReactFlow, {
   addEdge,
-  useNodesState,
-  useEdgesState,
   Controls,
+  Node,
   ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
 } from "reactflow";
 
-const initialNodes = [
-  {
-    id: "1",
-    type: "input",
-    data: { label: "Cluster" },
-    position: { x: 250, y: 5 },
-  },
-];
+const initialNodes: Node[] = [];
 
 let id = 0;
 const getId = () => {
@@ -30,10 +24,31 @@ const getId = () => {
 const Home: NextPage = () => {
   const reactFlowWrapper = useRef(null);
 
-  const [id, setId] = useState(0);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
+  const getNodeById = (id: string) => {
+    return nodes.find((node) => node.id === id)?.data;
+  };
+
+  const submit = () => {
+    const body: any = {};
+    edges.forEach(({ source: clusterId, target: appId }) => {
+      const node = getNodeById(clusterId) as any;
+      const numberOfHosts = node.numberOfHosts;
+      const cluster = node.label;
+      if (!body[cluster]) {
+        body[cluster] = { numberOfHosts };
+      }
+      const app = getNodeById(appId)?.label as string;
+      if (!body[cluster][app]) {
+        body[cluster][app] = 0;
+      }
+      body[cluster][app]++;
+    });
+    console.log(body);
+  };
 
   const onConnect = useCallback(
     (params: any) => setEdges((eds) => addEdge(params, eds)),
@@ -59,6 +74,9 @@ const Home: NextPage = () => {
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       const label = event.dataTransfer.getData("label");
       const type = event.dataTransfer.getData("type");
+      const numberOfHosts = Number.parseInt(
+        event.dataTransfer.getData("numberOfHosts")
+      );
 
       // @ts-ignore
       const position = reactFlowInstance.project({
@@ -70,15 +88,13 @@ const Home: NextPage = () => {
         id: getId(),
         type,
         position,
-        data: { label },
+        data: { label, numberOfHosts },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
     [reactFlowInstance]
   );
-
-  const submit = () => {};
 
   return (
     <>
