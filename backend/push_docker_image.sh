@@ -1,6 +1,8 @@
 image_name=$1
+aws_access_key_id=$2
+aws_secret_access_key=$3
 
-docker build -t $image_name ./temp/$image_name
+docker build -t $image_name -f ./dockerfiles/Dockerfile ./temp/$image_name
 
 aws configure --profile yg set aws_access_key_id $aws_access_key_id 
 aws configure --profile yg set aws_secret_access_key $aws_secret_access_key 
