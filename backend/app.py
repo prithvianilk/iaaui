@@ -1,6 +1,6 @@
 from flask import Flask, request
 import json
-from scripts import create_deployment_from_template, build_and_push_image, clone_repo
+from scripts import create_deployment_from_template, build_and_push_image, clone_repo, apply_deployment
 import os
 import shutil
 
@@ -26,8 +26,7 @@ def hello_world():
 
 @app.post("/submit")
 def submit():
-	body = request.get_json()
-	data = json.load(body)
+	data = request.get_json()
 
 	for cluster in data:
 		for app in cluster['apps']:
@@ -39,6 +38,7 @@ def submit():
 			clone_repo(app['app'], app['github_url'], folder)
 			build_and_push_image(app['app'], folder)
 			create_deployment_from_template("deployment", folder, app['name'])
+			apply_deployment(folder, cluster['provider'])
 
 			# delete folder
 			shutil.rmtree(folder)
