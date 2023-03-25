@@ -68,11 +68,6 @@ const Home: NextPage = () => {
     []
   );
 
-  const onContextMenu = (event: any) => {
-    event.preventDefault();
-    console.log("Click");
-  };
-
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -133,7 +128,6 @@ const Home: NextPage = () => {
                 onInit={setReactFlowInstance}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
-                onContextMenu={onContextMenu}
                 fitView
               >
                 <Controls />
