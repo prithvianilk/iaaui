@@ -18,7 +18,7 @@ def create_terraform_files(cluster_name,desired_size,instance_type,node_group_na
     template_file_data["access_key"]=aws_access_key_id
     template_file_data["secret_key"]=aws_secret_access_key
     template_file_data["instance_type"]=instance_type
-    template_file_data["node_group_name"]=node_group_name
+    template_file_data["node_group_name"]=f'{node_group_name}-{cluster_name}'
     with open(f'{path}/terraform.tfvars.json', 'w') as fp:
         json.dump(template_file_data, fp)
     backend_data=open(f'{path}/backend.tf','w')
