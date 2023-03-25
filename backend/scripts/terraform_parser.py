@@ -8,6 +8,8 @@ def create_terraform_files(cluster_name,desired_size,instance_type,node_group_na
         template_file_data=json.load(template_file)
     template_file_data["cluster_name"]=cluster_name
     template_file_data["desired_size"]=desired_size
+    template_file_data["access_key"]=os.getenv("AWS_ACCESS_KEY_ID")
+    template_file_data["secret_key"]=os.getenv("AWS_SECRET_ACCESS_KEY_ID")
     template_file_data["instance_type"]=instance_type
     template_file_data["node_group_name"]=node_group_name
     with open(f'{path}/terraform.tfvars.json', 'w') as fp:
@@ -17,11 +19,11 @@ def create_terraform_files(cluster_name,desired_size,instance_type,node_group_na
     backend "s3"{{
         region="ap-south-1"
         bucket="yg-hack-s3"
-        key="{}-terraformstate/terraform.tfstate"
-        access_key = "AKIA3EZCPWK3H2I2TYWH"
-        secret_key = "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"
+        key="{0}-terraformstate/terraform.tfstate"
+        access_key = "{1}"
+        secret_key = "{2}"
     }}
-}}'''.format(cluster_name)
+}}'''.format(cluster_name,os.getenv("AWS_ACCESS_KEY_ID"),os.getenv("AWS_SECRET_ACCESS_KEY_ID"))
     backend_data.write(backend_text)
     create_cluster(path)
 
@@ -37,6 +39,8 @@ def create_temp_folder(cluster_name):
 
 def create_cluster(path):
     os.system(f"terraform -chdir={path} init")
+    os.system(f"terraform -chdir={path} plan")
+    os.system(f"terraform -chdir={path} apply -auto-approve")
 
 def check_cluster_change(data):
     for cluster in data:

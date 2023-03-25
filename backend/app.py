@@ -27,8 +27,8 @@ def hello_world():
 
 @app.post("/submit")
 def submit():
-	body = request.get_json()
-	data = json.load(body)
+	data = request.get_json()
+	#Makes changes to the cluster
 	check_cluster_change(data)
 	for cluster in data:
 		for app in cluster['apps']:
