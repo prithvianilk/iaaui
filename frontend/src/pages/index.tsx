@@ -1,22 +1,74 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import ReactFlow, { Background, Controls } from "reactflow";
+import React, { useState, useRef, useCallback } from "react";
+import ReactFlow, {
+  ReactFlowProvider,
+  addEdge,
+  useNodesState,
+  useEdgesState,
+  Controls,
+} from "reactflow";
 import "reactflow/dist/style.css";
+import Sidebar from "~/components/Sidebar";
+
+const initialNodes = [
+  {
+    id: "1",
+    type: "input",
+    data: { label: "input node" },
+    position: { x: 250, y: 5 },
+  },
+];
+
+let id = 0;
+const getId = () => `dndnode_${id++}`;
 
 const Home: NextPage = () => {
-  const nodes = [
-    {
-      id: "1",
-      data: { label: "Hello" },
-      position: { x: 0, y: 0 },
-      type: "input",
+  const reactFlowWrapper = useRef(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
+  const onConnect = useCallback(
+    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    []
+  );
+
+  const onDragOver = useCallback((event: any) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: any) => {
+      event.preventDefault();
+
+      // @ts-ignore
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const type = event.dataTransfer.getData("application/reactflow");
+
+      // check if the dropped element is valid
+      if (typeof type === "undefined" || !type) {
+        return;
+      }
+
+      // @ts-ignore
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+
+      const newNode = {
+        id: getId(),
+        type,
+        position,
+        data: { label: `${type} node` },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
     },
-    {
-      id: "2",
-      data: { label: "World" },
-      position: { x: 100, y: 100 },
-    },
-  ];
+    [reactFlowInstance]
+  );
 
   return (
     <>
@@ -26,15 +78,30 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <div style={{ height: "100vh" }} className="flex">
-          <div className="h-screen w-1/5 bg-gray-100"></div>
-          <div className="h-screen w-4/5">
-            <ReactFlow nodes={nodes}>
-              <Background />
-              <Controls />
-            </ReactFlow>
+        <ReactFlowProvider>
+          <div style={{ height: "100vh" }} className="flex">
+            <div className="reactflow-wrapper" ref={reactFlowWrapper}></div>
+            <div className="h-screen w-1/5 bg-gray-100">
+              <Sidebar />
+            </div>
+            <div className="h-screen w-4/5">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                // @ts-ignore
+                onInit={setReactFlowInstance}
+                onDrop={onDrop}
+                onDragOver={onDragOver}
+                fitView
+              >
+                <Controls />
+              </ReactFlow>
+            </div>
           </div>
-        </div>
+        </ReactFlowProvider>
       </main>
     </>
   );
