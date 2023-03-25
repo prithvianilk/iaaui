@@ -1,6 +1,6 @@
 import jinja2
-import os
 import subprocess
+import time
 
 def create_lb_from_template(template_file, folder, image_name):
 	print("Creating lb service...")
@@ -14,7 +14,9 @@ def create_lb_from_template(template_file, folder, image_name):
 		f.write(output_text)
 
 def get_lb_endpoint(image_name):
-	# k --context yg-{provider} get svc {image_name}-loadbalancer -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-	response = subprocess.run(["kubectl", "get" ,"svc" ,f"{image_name}-loadbalancer", "-o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'"], text=True, capture_output=True)
-	output = response.stdout
+	response = ''
+	while response=='':
+		response = subprocess.run(["kubectl", "get" ,"svc" ,f"{image_name}-loadbalancer", "-o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'"], text=True, capture_output=True)
+		output = response.stdout
+		time.sleep(5)
 	return output
