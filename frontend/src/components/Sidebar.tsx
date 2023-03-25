@@ -10,35 +10,28 @@ type SidebarProps = {
 };
 
 const Sidebar = ({ submit }: SidebarProps) => {
-  const onDragStart = (event: any, data: NodeMeta) => {
+  const onDragStart = (event: any, data: NodeMeta, type: string) => {
     event.dataTransfer.setData("label", data.label);
     event.dataTransfer.setData("type", data.nodeType);
-    const isCluster = data.nodeType === "input";
-    if (isCluster) {
-      event.dataTransfer.setData("numberOfHosts", numberOfHosts.toString());
-    }
+    event.dataTransfer.setData("resourceType", type);
     event.dataTransfer.effectAllowed = "move";
   };
 
   const [clusterName, setClusterName] = useState("Cluster");
   const [numberOfHosts, setNumberOfHosts] = useState(1);
 
-  const getClusterNameWithDefaults = () => {
-    return clusterName.length ? clusterName : "Cluster";
-  };
-
   return (
     <div className="flex h-full flex-col justify-between px-2 py-5">
       <div>
         <div className="flex flex-col justify-center">
-          <div className="text-center text-lg mb-2">Create a cluster</div>
+          <div className="mb-2 text-center text-lg">Create a cluster</div>
           <label>Cluster Name</label>
           <input
             value={clusterName}
             type="text"
             placeholder="Cluster"
             onChange={(e) => setClusterName(e.currentTarget.value)}
-            className="input w-full max-w-xs my-2"
+            className="input my-2 w-full max-w-xs"
           />
           <label>Number of hosts</label>
           <input
@@ -53,30 +46,76 @@ const Sidebar = ({ submit }: SidebarProps) => {
               } finally {
               }
             }}
-            className="input w-full max-w-xs my-2"
+            className="input my-2 w-full max-w-xs"
           />
+          <hr className="my-5" />
           <div
-            className="node w-full text-lg my-2"
+            className="node w-full text-lg"
             onDragStart={(event) =>
-              onDragStart(event, {
-                label: getClusterNameWithDefaults(),
-                nodeType: "input",
-              })
+              // @ts-ignore
+              onDragStart(
+                event,
+                { label: "Cloud Name", nodeType: "input" },
+                "cloud"
+              )
             }
             draggable
           >
-            {getClusterNameWithDefaults()}
+            Cloud
+          </div>
+          <hr className="my-5" />
+          <div
+            className="node my-2 w-full text-lg"
+            onDragStart={(event) =>
+              onDragStart(
+                event,
+                // @ts-ignore
+                {
+                  label: "Cluster Name",
+                },
+                "cluster"
+              )
+            }
+            draggable
+          >
+            Cluster
           </div>
         </div>
         <hr className="my-5" />
         <div
           className="node w-full text-lg"
           onDragStart={(event) =>
-            onDragStart(event, { label: "App", nodeType: "output" })
+            // @ts-ignore
+            onDragStart(
+              event,
+              {
+                label: "App Name",
+                nodeType: "output",
+              },
+              "app"
+            )
           }
           draggable
         >
           App
+        </div>
+        <hr className="my-5" />
+        <div
+          className="node w-full text-lg"
+          onDragStart={(event) =>
+            // @ts-ignore
+            onDragStart(
+              event,
+              {
+                label: "Database Name",
+                nodeType: "output",
+              },
+              "database"
+            )
+          }
+          draggable
+        >
+          Database
         </div>
       </div>
       <div className="flex justify-center">

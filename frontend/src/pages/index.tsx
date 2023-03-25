@@ -11,25 +11,27 @@ import ReactFlow, {
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
+  useStore,
 } from "reactflow";
 
 const initialNodes: Node[] = [];
-
 let id = 0;
-const getId = () => {
-  ++id;
-  return `flow-id-${id}`;
-};
-
 const Home: NextPage = () => {
   const reactFlowWrapper = useRef(null);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const [rightPane, setRightPane] = useState(false);
+  const [selectedNode, setSelectedNode] = useState({id:"", data:{resourceType:""}});
 
   const getNodeById = (id: string) => {
     return nodes.find((node) => node.id === id)?.data;
+  };
+
+  const getId = () => {
+    ++id;
+    return "flow-node-" + String(id);
   };
 
   const submit = () => {
@@ -68,9 +70,7 @@ const Home: NextPage = () => {
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       const label = event.dataTransfer.getData("label");
       const type = event.dataTransfer.getData("type");
-      const numberOfHosts = Number.parseInt(
-        event.dataTransfer.getData("numberOfHosts")
-      );
+      const resourceType = event.dataTransfer.getData("resourceType");
 
       // @ts-ignore
       const position = reactFlowInstance.project({
@@ -82,13 +82,37 @@ const Home: NextPage = () => {
         id: getId(),
         type,
         position,
-        data: { label, numberOfHosts },
+        data: { label, resourceType },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
     [reactFlowInstance]
   );
+
+  const onNodeClick = async (e: any, node: any) => {
+    if (!rightPane) {
+      setRightPane(true);
+    }
+    await setSelectedNode(node);
+    console.log(node);
+  };
+
+  const onNodeDelete = async () => {
+    setNodes((ns) => {
+      return ns.filter((node) => {
+        return node.id != selectedNode.id;
+      });
+    });
+    setRightPane(false);
+    setEdges(
+      edges.filter((edge) => {
+        return !(
+          edge.source == selectedNode.id || edge.target == selectedNode.id
+        );
+      })
+    );
+  };
 
   return (
     <>
@@ -104,7 +128,7 @@ const Home: NextPage = () => {
             <div className="h-screen w-1/5 bg-gray-100">
               <Sidebar submit={submit} />
             </div>
-            <div className="h-screen w-4/5">
+            <div className={"h-screen" + rightPane ? "w-4/5" : "w-3/5"}>
               <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -115,11 +139,71 @@ const Home: NextPage = () => {
                 onInit={setReactFlowInstance}
                 onDrop={onDrop}
                 onDragOver={onDragOver}
+                onNodeClick={onNodeClick}
                 fitView
               >
                 <Controls />
               </ReactFlow>
             </div>
+            {rightPane ? (
+              <div className="min-h-full w-1/5 bg-gray-100">
+                <button
+                  className="btn-square btn absolute top-0 right-0 m-1"
+                  onClick={() => {
+                    setRightPane(false);
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+                <div className="bg-green">
+                  {selectedNode.data.resourceType == "cloud" ? (
+                    <div className="flex flex-col justify-center">
+                      <label>Cloud Service Provider</label>
+                      <div className="form-control">
+                        <div className="input-group">
+                          <select className="select-bordered select">
+                            <option disabled selected>
+                              Select
+                            </option>
+                            <option>AWS</option>
+                            <option>GCP</option>
+                            <option>Azure</option>
+                          </select>
+                          <button className="btn">Go</button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>AAA</>
+                  )}
+                </div>
+                <div className="align-center flex min-h-full flex-row justify-center">
+                  <div className="absolute bottom-0 m-4">
+                    <button
+                      className="jus btn-outline btn-error btn"
+                      onClick={onNodeDelete}
+                    >
+                      Remove Resource
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
         </ReactFlowProvider>
       </main>
