@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -15,7 +15,7 @@ const initialNodes = [
   {
     id: "1",
     type: "input",
-    data: { label: "input node" },
+    data: { label: "Cluster" },
     position: { x: 250, y: 5 },
   },
 ];
@@ -34,10 +34,19 @@ const Home: NextPage = () => {
     []
   );
 
+  useEffect(() => {
+    console.log(nodes);
+  }, [nodes]);
+
   const onDragOver = useCallback((event: any) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
   }, []);
+
+  const getType = (label: string) => {
+    if (label === "App") return "output";
+    return "input";
+  };
 
   const onDrop = useCallback(
     (event: any) => {
@@ -45,10 +54,10 @@ const Home: NextPage = () => {
 
       // @ts-ignore
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const type = event.dataTransfer.getData("application/reactflow");
+      const label = event.dataTransfer.getData("application/reactflow");
 
       // check if the dropped element is valid
-      if (typeof type === "undefined" || !type) {
+      if (typeof label === "undefined" || !label) {
         return;
       }
 
@@ -58,11 +67,13 @@ const Home: NextPage = () => {
         y: event.clientY - reactFlowBounds.top,
       });
 
+      const type = getType(label);
+
       const newNode = {
         id: getId(),
         type,
         position,
-        data: { label: `${type} node` },
+        data: { label },
       };
 
       setNodes((nds) => nds.concat(newNode));

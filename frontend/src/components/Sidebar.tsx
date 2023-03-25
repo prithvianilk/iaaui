@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Sidebar = () => {
   const onDragStart = (event: any, nodeType: any) => {
@@ -6,31 +6,24 @@ const Sidebar = () => {
     event.dataTransfer.effectAllowed = "move";
   };
 
+  const [clusterName, setClusterName] = useState("Cluster");
+
   return (
     <div>
-      <div className="description">
-        You can drag these nodes to the pane on the right.
+      <div className="text-center text-lg">Create a cluster</div>
+      <input type="text" />
+
+      <div className="flex justify-center">
+        <div
+          className="node w-2/3 text-lg"
+          onDragStart={(event) => onDragStart(event, "Cluster")}
+          draggable
+        >
+          {clusterName}
+        </div>
       </div>
-      <div
-        className="dndnode input"
-        onDragStart={(event) => onDragStart(event, "input")}
-        draggable
-      >
-        Input Node
-      </div>
-      <div
-        className="dndnode"
-        onDragStart={(event) => onDragStart(event, "default")}
-        draggable
-      >
-        Default Node
-      </div>
-      <div
-        className="dndnode output"
-        onDragStart={(event) => onDragStart(event, "output")}
-        draggable
-      >
-        Output Node
+      <div onDragStart={(event) => onDragStart(event, "App")} draggable>
+        App
       </div>
     </div>
   );
