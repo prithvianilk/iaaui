@@ -18,5 +18,6 @@ def get_lb_endpoint(image_name):
 	while output=='':
 		response = subprocess.run(["kubectl", "get" ,"svc" ,f"{image_name}-loadbalancer", "-o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'"], text=True, capture_output=True)
 		output = response.stdout
+		print(output, response.stderr)
 		time.sleep(5)
 	return output
