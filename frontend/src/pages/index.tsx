@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Sidebar from "~/components/Sidebar";
 
 import { useCallback, useState } from "react";
@@ -26,11 +26,13 @@ const Home: NextPage = () => {
   const [rightPane, setRightPane] = useState(false);
   const [selectedNode, setSelectedNode] = useState({
     id: "",
-    data: { resourceType: "", label: "" },
+    data: { resourceType: "", label: "", githubUrl: "", numberOfHosts: 1 },
   });
   const [selectedCSP, setSelectedCSP] = useState("");
   const [clusterName, setClusterName] = useState("Cluster");
   const [numberOfHosts, setNumberOfHosts] = useState(1);
+  const [appName, setAppName] = useState<string>("");
+  const [githubUrl, setGithubUrl] = useState<string>("");
 
   const getNodeById = (id: string) => {
     return nodes.find((node) => node.id === id)?.data;
@@ -132,14 +134,14 @@ const Home: NextPage = () => {
     [reactFlowInstance]
   );
 
-  const onNodeClick = async (e: any, node: any) => {
+  const onNodeClick = (e: any, node: any) => {
     if (!rightPane) {
       setRightPane(true);
     }
-    await setSelectedNode(node);
+    setSelectedNode(node);
   };
 
-  const onNodeDelete = async () => {
+  const onNodeDelete = () => {
     setNodes((ns) => {
       return ns.filter((node) => {
         return node.id != selectedNode.id;
@@ -157,10 +159,7 @@ const Home: NextPage = () => {
 
   const resourceType = selectedNode.data.resourceType;
 
-  const [appName, setAppName] = useState<string>("");
-  const [githubUrl, setGithubUrl] = useState<string>("");
-
-  const edit = () => {
+  const save = () => {
     if (resourceType === "app") {
       setNodes(
         nodes.map((node) => {
@@ -206,6 +205,39 @@ const Home: NextPage = () => {
     return {};
   };
 
+  useEffect(() => {
+    if (resourceType === "cluster") {
+      const clusterName = nodes.filter((node) => {
+        return node.id === selectedNode.id;
+      })[0]?.data.label;
+      const noHosts =
+        nodes.filter((node) => {
+          return node.id === selectedNode.id;
+        })[0]?.data.numberOfHosts === undefined
+          ? 1
+          : nodes.filter((node) => {
+              return node.id === selectedNode.id;
+            })[0]?.data.numberOfHosts;
+      setClusterName(clusterName);
+      setNumberOfHosts(noHosts);
+    }
+    if (resourceType === "app") {
+      const appName = nodes.filter((node) => {
+        return node.id === selectedNode.id;
+      })[0]?.data.label;
+      const gitUrl =
+        nodes.filter((node) => {
+          return node.id === selectedNode.id;
+        })[0]?.data.githubUrl === undefined
+          ? "Enter URL"
+          : nodes.filter((node) => {
+              return node.id === selectedNode.id;
+          })[0]?.data.githubUrl;
+      setAppName(appName);
+      setGithubUrl(gitUrl);
+    }
+  }, [selectedNode]);
+
   const getDrawer = () => {
     if (resourceType === "cloud") {
       return (
@@ -238,21 +270,18 @@ const Home: NextPage = () => {
         <div>
           <label>Cluster Name</label>
           <input
-            value={clusterName}
             type="text"
-            placeholder="Cluster"
+            value={clusterName}
             onChange={(e) => setClusterName(e.currentTarget.value)}
             className="input my-2 w-full max-w-xs"
           />
           <label>Number of hosts</label>
           <input
-            type="text"
-            placeholder="1"
-            value={numberOfHosts}
+            type="number"
+            value={String(numberOfHosts)}
             onChange={(e) => {
               try {
                 const newNumberOfHosts = Number.parseInt(e.currentTarget.value);
-                if (Number.isNaN(newNumberOfHosts)) return;
                 setNumberOfHosts(newNumberOfHosts);
               } finally {
               }
@@ -271,7 +300,6 @@ const Home: NextPage = () => {
             </label>
             <input
               type="text"
-              placeholder="Type here"
               value={appName}
               onChange={(e) => setAppName(e.target.value)}
               className="input-bordered input my-2 w-full max-w-xs"
@@ -283,7 +311,6 @@ const Home: NextPage = () => {
             </label>
             <input
               type="text"
-              placeholder="Type here"
               value={githubUrl}
               onChange={(e) => setGithubUrl(e.target.value)}
               className="input-bordered input my-2 w-full max-w-xs"
@@ -352,15 +379,15 @@ const Home: NextPage = () => {
                     <div className="flex flex-col justify-center">
                       {getDrawer()}
                       {resourceType !== "cloud" && (
-                        <button className="btn" onClick={edit}>
-                          Edit
+                        <button className="btn" onClick={save}>
+                          Save
                         </button>
                       )}
                     </div>
                   </>
                 </div>
                 <div className="align-center flex min-h-full flex-row justify-center">
-                  <div className="absolute bottom-0">
+                  <div className="absolute bottom-0 pb-2">
                     <button
                       className="jus btn-outline btn-error btn"
                       onClick={onNodeDelete}
