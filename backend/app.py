@@ -1,8 +1,7 @@
 from flask import Flask, request
-import json
 from scripts import check_cluster_change
-from scripts import create_deployment_from_template, build_and_push_image, clone_repo
-from scripts import apply_deployment
+from scripts import build_and_push_image, clone_repo
+from scripts import create_deployment_from_template, apply, create_lb_from_template
 import os
 import shutil
 
@@ -39,8 +38,9 @@ def submit():
 			# run scripts here
 			clone_repo(app['app'], app['github_url'], folder)
 			build_and_push_image(app['app'], folder)
-			create_deployment_from_template("deployment", folder, app['name'])
-			apply_deployment(folder, cluster['provider'])
+			create_deployment_from_template("deployment", folder, app['name'], app['replicas'])
+			create_lb_from_template("deployment", folder, app['name'])
+			apply(folder, cluster['provider'])
 
 			# delete folder
 			shutil.rmtree(folder)

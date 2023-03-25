@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{image_name}}-deployment
 spec:
-  replicas: 2
+  replicas: {{replicas}}
   selector:
     matchLabels:
       app: {{image_name}}-app
