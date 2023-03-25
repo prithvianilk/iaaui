@@ -55,10 +55,10 @@ def submit():
 			build_and_push_image(app['name'], folder)
 			create_deployment_from_template("deployment", folder, app['name'], app['replicas'])
 			create_lb_from_template("deployment", folder, app['name'])
-			apply(folder, cluster['provider'])
+			apply(folder)
 			
 			# geting lb url
-			lbURL = get_lb_endpoint(cluster['provider'], app['name'])
+			lbURL = get_lb_endpoint(app['name'])
 
 			# constructing response
 			cluster_resp['lbs'].append({"name":app['name'], "lbURL": lbURL})

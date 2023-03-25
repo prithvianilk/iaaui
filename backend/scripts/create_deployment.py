@@ -11,5 +11,5 @@ def create_deployment_from_template(template_file, folder, image_name, replicas)
 	with open(f"{folder}/{template_file}-{image_name}.yaml", "w") as f:
 		f.write(output_text)
 
-def apply(folder, provider):
-	os.system(f"kubectl apply --context yg-{provider} -f {folder}")
+def apply(folder):
+	os.system(f"kubectl apply -f {folder}")

@@ -12,8 +12,8 @@ def create_lb_from_template(template_file, folder, image_name):
 	with open(f"{folder}/{template_file}-{image_name}.yaml", "w") as f:
 		f.write(output_text)
 
-def get_lb_endpoint(provider, image_name):
+def get_lb_endpoint(image_name):
 	# k --context yg-{provider} get svc {image_name}-loadbalancer -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-	response = subprocess.run(["kubectl","--context",f"yg-{provider}", "get" ,"svc" ,f"{image_name}-loadbalancer", "-o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'"], text=True, capture_output=True)
+	response = subprocess.run(["kubectl", "get" ,"svc" ,f"{image_name}-loadbalancer", "-o=jsonpath='{.status.loadBalancer.ingress[0].hostname}'"], text=True, capture_output=True)
 	output = response.stdout
 	return output
