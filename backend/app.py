@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import json
 from scripts import create_deployment_from_template
+from scripts import check_cluster_change
 import os
 import shutil
 
@@ -14,6 +15,7 @@ def hello_world():
 def submit():
 	body = request.get_json()
 	data = json.load(body)
+	check_cluster_change(data)
 	for cluster in data:
 		for app in cluster.apps:
 			# creating folder
@@ -25,7 +27,6 @@ def submit():
 
 			# delete folder
 			shutil.rmtree(folder)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
