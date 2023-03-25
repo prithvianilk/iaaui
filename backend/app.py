@@ -9,7 +9,7 @@ app = Flask(__name__)
 # body = [
 # 	{
 # 		"name":"cluser-1",
-# 		"provider":"AKS",
+# 		"provider":"EKS",
 # 		"numberOfHosts":2,
 # 		"apps":[
 # 			{
