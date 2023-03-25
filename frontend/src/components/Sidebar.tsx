@@ -31,14 +31,14 @@ const Sidebar = ({ submit }: SidebarProps) => {
     <div className="flex h-full flex-col justify-between px-2 py-5">
       <div>
         <div className="flex flex-col justify-center">
-          <div className="text-center text-lg mb-2">Create a cluster</div>
+          <div className="mb-2 text-center text-lg">Create a cluster</div>
           <label>Cluster Name</label>
           <input
             value={clusterName}
             type="text"
             placeholder="Cluster"
             onChange={(e) => setClusterName(e.currentTarget.value)}
-            className="input w-full max-w-xs my-2"
+            className="input my-2 w-full max-w-xs"
           />
           <label>Number of hosts</label>
           <input
@@ -53,10 +53,10 @@ const Sidebar = ({ submit }: SidebarProps) => {
               } finally {
               }
             }}
-            className="input w-full max-w-xs my-2"
+            className="input my-2 w-full max-w-xs"
           />
           <div
-            className="node w-full text-lg my-2"
+            className="node my-2 w-full text-lg"
             onDragStart={(event) =>
               onDragStart(event, {
                 label: getClusterNameWithDefaults(),
@@ -68,15 +68,18 @@ const Sidebar = ({ submit }: SidebarProps) => {
             {getClusterNameWithDefaults()}
           </div>
         </div>
-        <hr className="my-5" />
-        <div
-          className="node w-full text-lg"
-          onDragStart={(event) =>
-            onDragStart(event, { label: "App", nodeType: "output" })
-          }
-          draggable
-        >
-          App
+        <hr className="my-2" />
+        <div className="flex flex-col justify-center">
+          <div className="mb-2 text-center text-lg">Spin up an app</div>
+          <div
+            className="node w-full text-lg"
+            onDragStart={(event) =>
+              onDragStart(event, { label: "App", nodeType: "output" })
+            }
+            draggable
+          >
+            App
+          </div>
         </div>
       </div>
       <div className="flex justify-center">
