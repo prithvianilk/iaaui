@@ -6,6 +6,20 @@ import shutil
 
 app = Flask(__name__)
 
+# body = [
+# 	{
+# 		"name":"cluser-1",
+# 		"provider":"AKS",
+# 		"numberOfHosts":2,
+# 		"apps":[
+# 			{
+# 				"name":"test",
+# 				"replicas":3
+# 			}
+# 		]
+# 	}
+# 	]
+
 @app.get("/")
 def hello_world():
 	return "<p>Hello, World!</p>"
@@ -14,10 +28,11 @@ def hello_world():
 def submit():
 	body = request.get_json()
 	data = json.load(body)
+
 	for cluster in data:
-		for app in cluster.apps:
+		for app in cluster['apps']:
 			# creating folder
-			folder = f"./temp/{cluster['provider']}-{cluster['name']}/"
+			folder = f"./temp/{cluster['provider']}-{cluster['name']}"
 			os.makedirs(folder, mode=511, exist_ok=True)
 
 			# run scripts here

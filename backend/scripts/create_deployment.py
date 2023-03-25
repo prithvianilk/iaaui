@@ -1,7 +1,7 @@
 import jinja2
 
 def create_deployment_from_template(template_file, folder, image_name):
-	templateLoader = jinja2.FileSystemLoader(searchpath="../k8s")
+	templateLoader = jinja2.FileSystemLoader(searchpath="./k8s")
 	templateEnv = jinja2.Environment(loader=templateLoader)
 	template = templateEnv.get_template(template_file)
 
