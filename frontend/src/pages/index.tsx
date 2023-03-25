@@ -13,6 +13,7 @@ import ReactFlow, {
   useNodesState,
   useStore,
 } from "reactflow";
+import axios from "~/utils/axios";
 
 const initialNodes: Node[] = [];
 let id = 0;
@@ -23,7 +24,10 @@ const Home: NextPage = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [rightPane, setRightPane] = useState(false);
-  const [selectedNode, setSelectedNode] = useState({id:"", data:{resourceType:""}});
+  const [selectedNode, setSelectedNode] = useState({
+    id: "",
+    data: { resourceType: "" },
+  });
 
   const getNodeById = (id: string) => {
     return nodes.find((node) => node.id === id)?.data;
@@ -34,7 +38,7 @@ const Home: NextPage = () => {
     return "flow-node-" + String(id);
   };
 
-  const submit = () => {
+  const submit = async () => {
     const clusters: any = {};
     edges.forEach(({ source: clusterId, target: appId }) => {
       const node = getNodeById(clusterId);
@@ -43,26 +47,34 @@ const Home: NextPage = () => {
       if (!clusters[clusterId]) {
         clusters[clusterId] = { name: clusterName, numberOfHosts, apps: [] };
       }
-      const app = getNodeById(appId)?.label as string;
-      if (!clusters[clusterId].apps[app]) {
-        clusters[clusterId].apps[app] = 0;
+      const app = getNodeById(appId);
+      const appName = app.label;
+      if (!clusters[clusterId].apps[appName]) {
+        clusters[clusterId].apps[appName] = {
+          githubUrl: app.githubUrl,
+          replicas: 0,
+        };
       }
-      clusters[clusterId].apps[app]++;
+      clusters[clusterId].apps[appName].replicas++;
     });
 
     const body = Object.keys(clusters).map((cluster) => {
       const { name, numberOfHosts, apps } = clusters[cluster];
       return {
-        name,
-        numberOfHosts,
+        name: "cluster-1",
+        provider: "EKS",
+        numberOfHosts: 3,
         apps: Object.keys(apps).map((appName) => ({
-          appName,
-          replicas: apps[appName],
+          name: appName,
+          replicas: apps[appName].replicas,
+          githubUrl: apps[appName].githubUrl,
         })),
       };
     });
 
     console.log(body);
+    const { data } = await axios.post("/submit", body);
+    console.log("response:", data);
   };
 
   const onConnect = useCallback(
@@ -127,6 +139,82 @@ const Home: NextPage = () => {
     );
   };
 
+  const resourceType = selectedNode.data.resourceType;
+
+  const [appName, setAppName] = useState<string>("");
+  const [githubUrl, setGithubUrl] = useState<string>("");
+
+  const edit = () => {
+    if (resourceType === "app") {
+      setNodes(
+        nodes.map((node) => {
+          if (node.id !== selectedNode.id) {
+            return node;
+          }
+          node.data.label = appName;
+          node.data.githubUrl = githubUrl;
+          return node;
+        })
+      );
+    }
+  };
+
+  const getDrawer = () => {
+    if (resourceType === "cloud") {
+      return (
+        <div className="flex flex-col justify-center">
+          <label className="text-center">Cloud Service Provider</label>
+          <div className="form-control">
+            <div className="input-group">
+              <select className="select-bordered select">
+                <option disabled selected>
+                  Select
+                </option>
+                <option>AWS</option>
+                <option>GCP</option>
+                <option>Azure</option>
+              </select>
+              <button className="btn">Go</button>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (resourceType === "app") {
+      return (
+        <div className="flex flex-col justify-center">
+          <label className="text-center">App Config</label>
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">App name</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Type here"
+              value={appName}
+              onChange={(e) => setAppName(e.target.value)}
+              className="input-bordered input my-2 w-full max-w-xs"
+            />
+          </div>
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">Github URL</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Type here"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              className="input-bordered input my-2 w-full max-w-xs"
+            />
+          </div>
+          <button className="btn" onClick={edit}>
+            Edit
+          </button>
+        </div>
+      );
+    }
+  };
+
   return (
     <>
       <Head>
@@ -159,12 +247,10 @@ const Home: NextPage = () => {
               </ReactFlow>
             </div>
             {rightPane ? (
-              <div className="min-h-full w-1/5 bg-gray-100">
+              <div className="min-h-full w-1/5 bg-gray-100 px-2">
                 <button
                   className="btn-square btn absolute top-0 right-0 m-1"
-                  onClick={() => {
-                    setRightPane(false);
-                  }}
+                  onClick={() => setRightPane(false)}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -181,28 +267,7 @@ const Home: NextPage = () => {
                     />
                   </svg>
                 </button>
-                <div className="bg-green">
-                  {selectedNode.data.resourceType == "cloud" ? (
-                    <div className="flex flex-col justify-center">
-                      <label>Cloud Service Provider</label>
-                      <div className="form-control">
-                        <div className="input-group">
-                          <select className="select-bordered select">
-                            <option disabled selected>
-                              Select
-                            </option>
-                            <option>AWS</option>
-                            <option>GCP</option>
-                            <option>Azure</option>
-                          </select>
-                          <button className="btn">Go</button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <>AAA</>
-                  )}
-                </div>
+                <div>{getDrawer()}</div>
                 <div className="align-center flex min-h-full flex-row justify-center">
                   <div className="absolute bottom-0 m-4">
                     <button
