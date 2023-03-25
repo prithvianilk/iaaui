@@ -3,6 +3,7 @@ import os
 import subprocess
 
 def create_lb_from_template(template_file, folder, image_name):
+	print("Creating lb service...")
 	templateLoader = jinja2.FileSystemLoader(searchpath="./k8s")
 	templateEnv = jinja2.Environment(loader=templateLoader)
 	template = templateEnv.get_template(template_file)
