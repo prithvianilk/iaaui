@@ -1,85 +1,12 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import React, { useState, useRef, useCallback, useEffect } from "react";
-import ReactFlow, {
-  ReactFlowProvider,
-  addEdge,
-  useNodesState,
-  useEdgesState,
-  Controls,
-} from "reactflow";
-import "reactflow/dist/style.css";
+import React, { useRef } from "react";
+import { ReactFlowProvider } from "reactflow";
+import Canvas from "~/components/Canvas";
 import Sidebar from "~/components/Sidebar";
-
-const initialNodes = [
-  {
-    id: "1",
-    type: "input",
-    data: { label: "Cluster" },
-    position: { x: 250, y: 5 },
-  },
-];
-
-let id = 0;
-const getId = () => `dndnode_${id++}`;
 
 const Home: NextPage = () => {
   const reactFlowWrapper = useRef(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [reactFlowInstance, setReactFlowInstance] = useState(null);
-
-  const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
-    []
-  );
-
-  useEffect(() => {
-    console.log(nodes);
-  }, [nodes]);
-
-  const onDragOver = useCallback((event: any) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }, []);
-
-  const getType = (label: string) => {
-    if (label === "App") return "output";
-    return "input";
-  };
-
-  const onDrop = useCallback(
-    (event: any) => {
-      event.preventDefault();
-
-      // @ts-ignore
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const label = event.dataTransfer.getData("application/reactflow");
-
-      // check if the dropped element is valid
-      if (typeof label === "undefined" || !label) {
-        return;
-      }
-
-      // @ts-ignore
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      });
-
-      const type = getType(label);
-
-      const newNode = {
-        id: getId(),
-        type,
-        position,
-        data: { label },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [reactFlowInstance]
-  );
 
   return (
     <>
@@ -90,26 +17,13 @@ const Home: NextPage = () => {
       </Head>
       <main>
         <ReactFlowProvider>
+          <div className="reactflow-wrapper" ref={reactFlowWrapper}></div>
           <div style={{ height: "100vh" }} className="flex">
-            <div className="reactflow-wrapper" ref={reactFlowWrapper}></div>
             <div className="h-screen w-1/5 bg-gray-100">
               <Sidebar />
             </div>
             <div className="h-screen w-4/5">
-              <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                // @ts-ignore
-                onInit={setReactFlowInstance}
-                onDrop={onDrop}
-                onDragOver={onDragOver}
-                fitView
-              >
-                <Controls />
-              </ReactFlow>
+              <Canvas reactFlowWrapper={reactFlowWrapper} />
             </div>
           </div>
         </ReactFlowProvider>

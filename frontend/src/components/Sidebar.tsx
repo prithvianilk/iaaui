@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 
+export type NodeMeta = {
+  nodeType: "input" | "output";
+  label: string;
+};
+
 const Sidebar = () => {
-  const onDragStart = (event: any, nodeType: any) => {
-    event.dataTransfer.setData("application/reactflow", nodeType);
+  const onDragStart = (event: any, data: NodeMeta) => {
+    event.dataTransfer.setData("label", data.label);
+    event.dataTransfer.setData("type", data.nodeType);
     event.dataTransfer.effectAllowed = "move";
   };
 
@@ -11,18 +17,29 @@ const Sidebar = () => {
   return (
     <div>
       <div className="text-center text-lg">Create a cluster</div>
-      <input type="text" />
-
-      <div className="flex justify-center">
+      <div className="flex flex-col justify-center">
+        <input
+          type="text"
+          placeholder="Enter cluster name"
+          onChange={(e) => setClusterName(e.currentTarget.value)}
+        />
         <div
           className="node w-2/3 text-lg"
-          onDragStart={(event) => onDragStart(event, "Cluster")}
+          onDragStart={(event) =>
+            onDragStart(event, { label: clusterName, nodeType: "input" })
+          }
           draggable
         >
           {clusterName}
         </div>
       </div>
-      <div onDragStart={(event) => onDragStart(event, "App")} draggable>
+      <div
+        className="node w-2/3 text-lg"
+        onDragStart={(event) =>
+          onDragStart(event, { label: "App", nodeType: "output" })
+        }
+        draggable
+      >
         App
       </div>
     </div>
