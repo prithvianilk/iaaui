@@ -43,12 +43,25 @@ const Home: NextPage = () => {
 
   const submit = async () => {
     const clusters: any = {};
+
     edges.forEach(({ source: clusterId, target: appId }) => {
       const node = getNodeById(clusterId);
       const numberOfHosts = node.numberOfHosts;
       const clusterName = node.label;
+      const resourceType = node.resourceType;
+      if (resourceType !== "cluster") {
+        return;
+      }
       if (!clusters[clusterId]) {
-        clusters[clusterId] = { name: clusterName, numberOfHosts, apps: [] };
+        const cloudId = edges.find((edge) => edge.target === clusterId)
+          ?.source as string;
+        const cloudName = getNodeById(cloudId).label;
+        clusters[clusterId] = {
+          name: clusterName,
+          numberOfHosts,
+          provider: cloudName,
+          apps: [],
+        };
       }
       const app = getNodeById(appId);
       const appName = app.label;
@@ -62,11 +75,11 @@ const Home: NextPage = () => {
     });
 
     const body = Object.keys(clusters).map((cluster) => {
-      const { name, numberOfHosts, apps } = clusters[cluster];
+      const { name, numberOfHosts, apps, provider } = clusters[cluster];
       return {
-        name: "cluster-1",
-        provider: "EKS",
-        numberOfHosts: 3,
+        name,
+        provider,
+        numberOfHosts,
         apps: Object.keys(apps).map((appName) => ({
           name: appName,
           replicas: apps[appName].replicas,
@@ -76,8 +89,6 @@ const Home: NextPage = () => {
     });
 
     console.log(body);
-    const { data } = await axios.post("/submit", body);
-    console.log("response:", data);
   };
 
   const onConnect = useCallback(
@@ -249,7 +260,7 @@ const Home: NextPage = () => {
       );
     } else if (resourceType === "app") {
       return (
-        <div className="flex flex-col justify-center">
+        <div className="flex flex-col justify-center px-2">
           <label className="text-center">App Config</label>
           <div className="form-control w-full max-w-xs">
             <label className="label">
