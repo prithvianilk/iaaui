@@ -15,3 +15,5 @@ spec:
       containers:
         - name: {{image_name}}-container
           image: public.ecr.aws/z2h9g2z1/hack:{{image_name}}
+          ports:
+          - containerPort: 5000
