@@ -28,6 +28,7 @@ def hello_world():
 @app.post("/submit")
 def submit():
 	data = request.get_json()
+	#Makes changes to the cluster
 	check_cluster_change(data)
 	for cluster in data:
 		# creating folder
