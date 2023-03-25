@@ -61,11 +61,11 @@ module "eks" {
     one = {
       name = "node-group-1"
 
-      instance_types = ["t2.micro"]
+      instance_types = ["t2.small"]
 
       min_size     = 1
-      max_size     = 1
-      desired_size = 1
+      max_size     = 3
+      desired_size = 3
     }
   }
 }
