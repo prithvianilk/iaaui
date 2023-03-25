@@ -3,7 +3,7 @@ base_folder=$2
 aws_access_key_id=$3
 aws_secret_access_key=$4
 
-docker build -t $image_name -f ./dockerfiles/Dockerfile $base_folder/$image_name
+docker build -t $image_name -f ./dockerfiles/Dockerfile --platform linux/x86_64 $base_folder/$image_name
 
 aws configure --profile yg set aws_access_key_id $aws_access_key_id 
 aws configure --profile yg set aws_secret_access_key $aws_secret_access_key 
