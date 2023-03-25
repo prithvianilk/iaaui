@@ -2,6 +2,7 @@ import jinja2
 import os
 
 def create_deployment_from_template(template_file, folder, image_name, replicas):
+	print("creating deployment...")
 	templateLoader = jinja2.FileSystemLoader(searchpath="./k8s")
 	templateEnv = jinja2.Environment(loader=templateLoader)
 	template = templateEnv.get_template(template_file)
@@ -12,4 +13,5 @@ def create_deployment_from_template(template_file, folder, image_name, replicas)
 		f.write(output_text)
 
 def apply(folder):
+	print("applying yamls to k8s")
 	os.system(f"kubectl apply -f {folder}")
