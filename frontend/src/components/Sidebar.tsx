@@ -5,7 +5,11 @@ export type NodeMeta = {
   label: string;
 };
 
-const Sidebar = () => {
+type SidebarProps = {
+  submit: () => void;
+};
+
+const Sidebar = ({ submit }: SidebarProps) => {
   const onDragStart = (event: any, data: NodeMeta) => {
     event.dataTransfer.setData("label", data.label);
     event.dataTransfer.setData("type", data.nodeType);
@@ -13,6 +17,10 @@ const Sidebar = () => {
   };
 
   const [clusterName, setClusterName] = useState("Cluster");
+
+  const getClusterNameWithDefaults = () => {
+    return clusterName.length ? clusterName : "Cluster";
+  };
 
   return (
     <div>
@@ -26,11 +34,14 @@ const Sidebar = () => {
         <div
           className="node w-2/3 text-lg"
           onDragStart={(event) =>
-            onDragStart(event, { label: clusterName, nodeType: "input" })
+            onDragStart(event, {
+              label: getClusterNameWithDefaults(),
+              nodeType: "input",
+            })
           }
           draggable
         >
-          {clusterName}
+          {getClusterNameWithDefaults()}
         </div>
       </div>
       <div
@@ -41,6 +52,10 @@ const Sidebar = () => {
         draggable
       >
         App
+      </div>
+
+      <div>
+        <button onClick={submit}>Submit</button>
       </div>
     </div>
   );

@@ -1,12 +1,78 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import React, { useRef } from "react";
-import { ReactFlowProvider } from "reactflow";
-import Canvas from "~/components/Canvas";
 import Sidebar from "~/components/Sidebar";
+
+import { useState, useCallback } from "react";
+import ReactFlow, {
+  addEdge,
+  useNodesState,
+  useEdgesState,
+  Controls,
+  ReactFlowProvider,
+} from "reactflow";
+
+const initialNodes = [
+  {
+    id: "1",
+    type: "input",
+    data: { label: "Cluster" },
+    position: { x: 250, y: 5 },
+  },
+];
+
+let id = 0;
+const getId = () => {
+  ++id;
+  return `flow-id-${id}`;
+};
 
 const Home: NextPage = () => {
   const reactFlowWrapper = useRef(null);
+
+  const [id, setId] = useState(0);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
+  const onConnect = useCallback(
+    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    []
+  );
+
+  const onDragOver = useCallback((event: any) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: any) => {
+      event.preventDefault();
+
+      // @ts-ignore
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const label = event.dataTransfer.getData("label");
+      const type = event.dataTransfer.getData("type");
+
+      // @ts-ignore
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+
+      const newNode = {
+        id: getId(),
+        type,
+        position,
+        data: { label },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [reactFlowInstance]
+  );
+
+  const submit = () => {};
 
   return (
     <>
@@ -20,10 +86,23 @@ const Home: NextPage = () => {
           <div className="reactflow-wrapper" ref={reactFlowWrapper}></div>
           <div style={{ height: "100vh" }} className="flex">
             <div className="h-screen w-1/5 bg-gray-100">
-              <Sidebar />
+              <Sidebar submit={submit} />
             </div>
             <div className="h-screen w-4/5">
-              <Canvas reactFlowWrapper={reactFlowWrapper} />
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                // @ts-ignore
+                onInit={setReactFlowInstance}
+                onDrop={onDrop}
+                onDragOver={onDragOver}
+                fitView
+              >
+                <Controls />
+              </ReactFlow>
             </div>
           </div>
         </ReactFlowProvider>
