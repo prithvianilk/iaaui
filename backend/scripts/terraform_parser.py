@@ -51,6 +51,7 @@ def create_cluster(path):
     os.system("aws eks --profile yg --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)")
 
 def check_cluster_change(data):
+    os.makedirs(os.path.join(os.getcwd(),"temp_tf"),exist_ok=True)
     for cluster in data:
         if not os.path.exists(os.path.join(os.getcwd(),"temp_tf",cluster['name'])):
             create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
