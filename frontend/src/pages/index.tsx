@@ -132,6 +132,24 @@ const Home: NextPage = () => {
 
   const resourceType = selectedNode.data.resourceType;
 
+  const [appName, setAppName] = useState<string>("");
+  const [githubUrl, setGithubUrl] = useState<string>("");
+
+  const edit = () => {
+    if (resourceType === "app") {
+      setNodes(
+        nodes.map((node) => {
+          if (node.id !== selectedNode.id) {
+            return node;
+          }
+          node.data.label = appName;
+          node.data.githubUrl = githubUrl;
+          return node;
+        })
+      );
+    }
+  };
+
   const getDrawer = () => {
     if (resourceType === "cloud") {
       return (
@@ -158,15 +176,31 @@ const Home: NextPage = () => {
           <label className="text-center">App Config</label>
           <div className="form-control w-full max-w-xs">
             <label className="label">
-              <span className="label-text">What is your name?</span>
+              <span className="label-text">App name</span>
             </label>
             <input
               type="text"
               placeholder="Type here"
-              className="input-bordered input w-full max-w-xs"
+              value={appName}
+              onChange={(e) => setAppName(e.target.value)}
+              className="input-bordered input my-2 w-full max-w-xs"
             />
           </div>
-          <button className="btn">Edit</button>
+          <div className="form-control w-full max-w-xs">
+            <label className="label">
+              <span className="label-text">Github URL</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Type here"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
+              className="input-bordered input my-2 w-full max-w-xs"
+            />
+          </div>
+          <button className="btn" onClick={edit}>
+            Edit
+          </button>
         </div>
       );
     }
@@ -204,7 +238,7 @@ const Home: NextPage = () => {
               </ReactFlow>
             </div>
             {rightPane ? (
-              <div className="min-h-full w-1/5 bg-gray-100">
+              <div className="min-h-full w-1/5 bg-gray-100 px-2">
                 <button
                   className="btn-square btn absolute top-0 right-0 m-1"
                   onClick={() => setRightPane(false)}
