@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 from scripts import check_cluster_change
 from scripts import build_and_push_image, clone_repo
 from scripts import create_deployment_from_template, apply, create_lb_from_template, get_lb_endpoint
@@ -6,6 +7,8 @@ import os
 import shutil
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # body = [
 # 	{
@@ -15,7 +18,8 @@ app = Flask(__name__)
 # 		"apps":[
 # 			{
 # 				"name":"test",
-# 				"replicas":3
+# 				"replicas":3,
+#               "githubUrl": ""
 # 			}
 # 		]
 # 	}
@@ -31,11 +35,8 @@ app = Flask(__name__)
 # 	}
 # ]
 
-@app.get("/")
-def hello_world():
-	return "<p>Hello, World!</p>"
-
 @app.post("/submit")
+@cross_origin()
 def submit():
 	data = request.get_json()
 	#Makes changes to the cluster

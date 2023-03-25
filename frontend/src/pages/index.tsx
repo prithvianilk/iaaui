@@ -13,6 +13,7 @@ import ReactFlow, {
   useNodesState,
   useStore,
 } from "reactflow";
+import axios from "~/utils/axios";
 
 const initialNodes: Node[] = [];
 let id = 0;
@@ -37,7 +38,7 @@ const Home: NextPage = () => {
     return "flow-node-" + String(id);
   };
 
-  const submit = () => {
+  const submit = async () => {
     const clusters: any = {};
     edges.forEach(({ source: clusterId, target: appId }) => {
       const node = getNodeById(clusterId);
@@ -46,26 +47,34 @@ const Home: NextPage = () => {
       if (!clusters[clusterId]) {
         clusters[clusterId] = { name: clusterName, numberOfHosts, apps: [] };
       }
-      const app = getNodeById(appId)?.label as string;
-      if (!clusters[clusterId].apps[app]) {
-        clusters[clusterId].apps[app] = 0;
+      const app = getNodeById(appId);
+      const appName = app.label;
+      if (!clusters[clusterId].apps[appName]) {
+        clusters[clusterId].apps[appName] = {
+          githubUrl: app.githubUrl,
+          replicas: 0,
+        };
       }
-      clusters[clusterId].apps[app]++;
+      clusters[clusterId].apps[appName].replicas++;
     });
 
     const body = Object.keys(clusters).map((cluster) => {
       const { name, numberOfHosts, apps } = clusters[cluster];
       return {
-        name,
-        numberOfHosts,
+        name: "cluster-1",
+        provider: "EKS",
+        numberOfHosts: 3,
         apps: Object.keys(apps).map((appName) => ({
-          appName,
-          replicas: apps[appName],
+          name: appName,
+          replicas: apps[appName].replicas,
+          githubUrl: apps[appName].githubUrl,
         })),
       };
     });
 
     console.log(body);
+    const { data } = await axios.post("/submit", body);
+    console.log("response:", data);
   };
 
   const onConnect = useCallback(
