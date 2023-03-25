@@ -1,6 +1,8 @@
 from flask import Flask, request
 import json
-from scripts import create_deployment_from_template, build_and_push_image, clone_repo, apply_deployment
+from scripts import check_cluster_change
+from scripts import create_deployment_from_template, build_and_push_image, clone_repo
+from scripts import apply_deployment
 import os
 import shutil
 
@@ -27,7 +29,7 @@ def hello_world():
 @app.post("/submit")
 def submit():
 	data = request.get_json()
-
+	check_cluster_change(data)
 	for cluster in data:
 		for app in cluster['apps']:
 			# creating folder
@@ -42,7 +44,6 @@ def submit():
 
 			# delete folder
 			shutil.rmtree(folder)
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

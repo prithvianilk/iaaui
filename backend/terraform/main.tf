@@ -1,12 +1,13 @@
 provider "aws" {
-  region = var.region
-  profile=var.profile
+  region = var.aws_region
+  access_key = var.access_key
+  secret_key = var.secret_key
 }
 
 data "aws_availability_zones" "available" {}
 
 locals {
-  cluster_name = "yg-eks-${random_string.suffix.result}"
+  cluster_name = "${var.cluster_name}-${random_string.suffix.result}"
 }
 
 resource "random_string" "suffix" {
@@ -53,19 +54,19 @@ module "eks" {
   cluster_endpoint_public_access = true
 
   eks_managed_node_group_defaults = {
-    ami_type = "AL2_x86_64"
+    ami_type = var.ami_type
 
   }
 
   eks_managed_node_groups = {
     one = {
-      name = "node-group-1"
+      name = var.node_group_name
 
-      instance_types = ["t2.small"]
+      instance_types = [var.instance_type]
 
-      min_size     = 1
-      max_size     = 3
-      desired_size = 3
+      min_size     = var.min_size
+      max_size     = var.desired_size
+      desired_size = var.desired_size
     }
   }
 }

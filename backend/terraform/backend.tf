@@ -3,6 +3,7 @@ terraform{
         region="ap-south-1"
         bucket="yg-hack-s3"
         key="yg-terraformstate/terraform.tfstate"
-        profile="yg"
+        access_key = "AKIA3EZCPWK3H2I2TYWH"
+        secret_key = "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"
     }
 }
