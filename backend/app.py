@@ -5,6 +5,7 @@ from scripts import build_and_push_image, clone_repo
 from scripts import create_deployment_from_template, apply, create_lb_from_template, get_lb_endpoint
 import os
 import shutil
+import time
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -64,6 +65,9 @@ def submit():
 			create_lb_from_template("deployment", folder, app['name'])
 			apply(folder)
 			
+			print("sleeping 30sec")
+			time.sleep(30)
+
 			# geting lb url
 			lbURL = get_lb_endpoint(app['name'])
 
