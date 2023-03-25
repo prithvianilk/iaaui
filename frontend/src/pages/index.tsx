@@ -261,6 +261,9 @@ const Home: NextPage = () => {
               <option value={"azure"} {...dest("azure")}>
                 Azure
               </option>
+              <option value={"on-premise"} {...dest("on-premise")}>
+                On-Premise
+              </option>
             </select>
           </div>
         </div>
