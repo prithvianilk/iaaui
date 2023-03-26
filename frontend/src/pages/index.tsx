@@ -100,23 +100,28 @@ const Home: NextPage = () => {
     });
 
     console.log(body);
-    setIsLoading(true)
-    const { data } = await axios.post("/submit", body);
-    setIsLoading(false)
-    console.log(data);
+    setIsLoading(true);
+    try {
+      const { data } = await axios.post("/submit", body);
+      setIsLoading(false);
+      console.log(data);
 
-    for (var cluster of data) {
-      for (var lb of cluster["lbs"]) {
-        setNodes(
-          nodes.map((node) => {
-            if (node.data.label !== lb.name) {
+      for (var cluster of data) {
+        for (var lb of cluster["lbs"]) {
+          setNodes(
+            nodes.map((node) => {
+              if (node.data.label !== lb.name) {
+                return node;
+              }
+              node.data.ip = lb["lbURL"].replaceAll("'", "");
               return node;
-            }
-            node.data.ip = lb["lbURL"].replaceAll("'", "");
-            return node;
-          })
-        );
+            })
+          );
+        }
       }
+    } catch {
+      setIsLoading(false);
+      return;
     }
   };
 
@@ -366,7 +371,7 @@ const Home: NextPage = () => {
           <div className="reactflow-wrapper" ref={reactFlowWrapper}></div>
           <div style={{ height: "100vh" }} className="flex">
             <div className="h-screen w-1/5 bg-gray-100">
-              <Sidebar submit={submit} isLoading={ isLoading } />
+              <Sidebar submit={submit} isLoading={isLoading} />
             </div>
             <div className={"h-screen" + rightPane ? "w-4/5" : "w-3/5"}>
               <ReactFlow
