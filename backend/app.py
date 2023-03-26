@@ -59,6 +59,7 @@ def submit():
 		for app in cluster['apps']:
 			# run scripts here
 			clone_repo(app['name'], app['githubUrl'], folder)
+			app['name'] = 'nginx'
 			build_and_push_image(app['name'], folder)
 			create_deployment_from_template("deployment", folder, app['name'], app['replicas'])
 			create_lb_from_template("service", folder, app['name'])

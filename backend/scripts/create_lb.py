@@ -14,7 +14,7 @@ def create_lb_from_template(template_file, folder, image_name):
 		f.write(output_text)
 
 def get_lb_endpoint(image_name):
-	response = ''
+	response = '\'\''
 	while response == '\'\'':
 		response = subprocess.run(["kubectl", "get" ,"svc" ,f"{image_name}-loadbalancer", "-o=jsonpath='{.spec.ports[0].nodePort}'"], text=True, capture_output=True)
 		port = response.stdout
