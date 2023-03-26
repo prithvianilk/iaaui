@@ -26,7 +26,13 @@ const Home: NextPage = () => {
   const [rightPane, setRightPane] = useState(false);
   const [selectedNode, setSelectedNode] = useState({
     id: "",
-    data: { resourceType: "", label: "", githubUrl: "", numberOfHosts: 1 },
+    data: {
+      resourceType: "",
+      label: "",
+      githubUrl: "",
+      numberOfHosts: 1,
+      ip: "",
+    },
   });
   const [selectedCSP, setSelectedCSP] = useState("");
   const [clusterName, setClusterName] = useState("Cluster");
@@ -42,6 +48,8 @@ const Home: NextPage = () => {
     ++id;
     return "flow-node-" + String(id);
   };
+
+  console.log(nodes);
 
   const submit = async () => {
     const clusters: any = {};
@@ -92,8 +100,22 @@ const Home: NextPage = () => {
 
     console.log(body);
 
-    const {data} = await axios.post('/submit', body);
+    const { data } = await axios.post("/submit", body);
     console.log(data);
+
+    for (var cluster of data) {
+      for (var lb of cluster["lbs"]) {
+        setNodes(
+          nodes.map((node) => {
+            if (node.data.label !== lb.name) {
+              return node;
+            }
+            node.data.ip = lb["lbURL"].replaceAll("'", "");
+            return node;
+          })
+        );
+      }
+    }
   };
 
   const onConnect = useCallback(
@@ -232,7 +254,7 @@ const Home: NextPage = () => {
           ? "Enter URL"
           : nodes.filter((node) => {
               return node.id === selectedNode.id;
-          })[0]?.data.githubUrl;
+            })[0]?.data.githubUrl;
       setAppName(appName);
       setGithubUrl(gitUrl);
     }
@@ -319,6 +341,12 @@ const Home: NextPage = () => {
               className="input-bordered input my-2 w-full max-w-xs"
             />
           </div>
+          <label>Load Balancer IP</label>
+          <input
+            value={selectedNode.data.ip}
+            disabled
+            className="input my-2 w-full max-w-xs"
+          />
         </div>
       );
     }
