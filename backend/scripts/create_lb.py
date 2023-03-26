@@ -17,7 +17,8 @@ def get_lb_endpoint(image_name,provider, folder):
 	if(provider=="on-premise"):
 		file = f'{folder}/{provider}-{image_name}.log'
 		with open(file, "w") as f:
-			process = subprocess.popen(["minikube","service","{image_name}-loadbalancer","--url"], stdout=f)
+			process = subprocess.Popen(["minikube","service",f"{image_name}-loadbalancer","--url"], stdout=f)
+			time.sleep(2)
 		with open(file, "r") as f1:
 			time.sleep(5)
 			return f1.readlines()[0].strip()

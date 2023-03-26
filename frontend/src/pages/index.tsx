@@ -89,7 +89,7 @@ const Home: NextPage = () => {
       const { name, numberOfHosts, apps, provider } = clusters[cluster];
       return {
         name,
-        provider,
+        provider: provider.toLowerCase(),
         numberOfHosts,
         apps: Object.keys(apps).map((appName) => ({
           name: appName,
