@@ -2,6 +2,7 @@ from asyncio import subprocess
 import json
 import os
 import shutil
+import time
 from os.path import join, dirname
 from dotenv import load_dotenv
 
@@ -53,12 +54,16 @@ def create_cluster(path):
 
 def check_cluster_change(cluster):
     os.makedirs(os.path.join(os.getcwd(),"temp_tf"),exist_ok=True)
+    print(cluster["provider"])
     if(cluster["provider"]=="on-premise"):
         check=subprocess.run(["minikube","status"], text=True, capture_output=True)
         if(check.stdout.find("Running")):
             os.system("kubectl config use-context minikube")
+            print("MiniKube Already Running")
         else:
             os.system(f"minikube start")
+            print("MiniKube Starting...")
+            time.sleep(15)
     else:
         if not os.path.exists(os.path.join(os.getcwd(),"temp_tf",cluster['name'])):
             create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
