@@ -13,10 +13,14 @@ def create_lb_from_template(template_file, folder, image_name):
 	with open(f"{folder}/{template_file}-{image_name}.yaml", "w") as f:
 		f.write(output_text)
 
-def get_lb_endpoint(image_name,provider):
-	if(provider=="on-prem"):
-		resp=subprocess.run(["minikube", "service", f"{image_name}-loadbalancer","--url"])
-		return resp.stdout
+def get_lb_endpoint(image_name,provider, folder):
+	if(provider=="on-premise"):
+		file = f'{folder}/{provider}-{image_name}.log'
+		with open(file, "w") as f:
+			process = subprocess.popen(["minikube","service","{image_name}-loadbalancer","--url"], stdout=f)
+		with open(file, "r") as f1:
+			time.sleep(5)
+			return f1.readlines()[0].strip()
 	else:
 		response = ''
 		while response=='':

@@ -53,7 +53,7 @@ def create_cluster(path):
 
 def check_cluster_change(cluster):
     os.makedirs(os.path.join(os.getcwd(),"temp_tf"),exist_ok=True)
-    if(cluster["provider"]=="on-prem"):
+    if(cluster["provider"]=="on-premise"):
         check=subprocess.run(["minikube","status"], text=True, capture_output=True)
         if(check.stdout.find("Running")):
             os.system("kubectl config use-context minikube")
