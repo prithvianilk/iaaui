@@ -7,9 +7,11 @@ export type NodeMeta = {
 
 type SidebarProps = {
   submit: () => void;
+  isLoading: any;
 };
 
-const Sidebar = ({ submit }: SidebarProps) => {
+const Sidebar = ({ submit, isLoading }: SidebarProps) => {
+  console.log(isLoading)
   const onDragStart = (event: any, data: NodeMeta, type: string) => {
     event.dataTransfer.setData("label", data.label);
     event.dataTransfer.setData("type", data.nodeType);
@@ -93,9 +95,13 @@ const Sidebar = ({ submit }: SidebarProps) => {
         </div>
       </div>
       <div className="flex justify-center">
-        <button className="btn w-4/5" onClick={submit}>
-          Submit
-        </button>
+        {isLoading ? (
+          <progress className="progress w-56"></progress>
+        ) : (
+          <button className="btn mb-2 w-4/5" onClick={submit}>
+            Submit
+          </button>
+        )}
       </div>
     </div>
   );

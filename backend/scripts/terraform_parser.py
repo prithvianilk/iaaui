@@ -67,4 +67,4 @@ def check_cluster_change(cluster):
                 template_file_data=json.load(template_file)
             if template_file_data["desired_size"]!=cluster["numberOfHosts"]:
                 create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
-            os.system(f"aws eks --profile yg --region ap-south-1 update-kubeconfig --name {template_file_data['name']}")            
+            os.system(f"aws eks --profile yg --region ap-south-1 update-kubeconfig --name cluster-1-Hd4UpCB1")            

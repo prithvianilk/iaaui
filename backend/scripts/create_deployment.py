@@ -14,4 +14,5 @@ def create_deployment_from_template(template_file, folder, image_name, replicas)
 
 def apply(folder):
 	print("applying yamls to k8s")
+	print('folder:', folder)
 	os.system(f"kubectl apply -f {folder}")

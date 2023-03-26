@@ -26,13 +26,20 @@ const Home: NextPage = () => {
   const [rightPane, setRightPane] = useState(false);
   const [selectedNode, setSelectedNode] = useState({
     id: "",
-    data: { resourceType: "", label: "", githubUrl: "", numberOfHosts: 1 },
+    data: {
+      resourceType: "",
+      label: "",
+      githubUrl: "",
+      numberOfHosts: 1,
+      ip: "",
+    },
   });
   const [selectedCSP, setSelectedCSP] = useState("");
   const [clusterName, setClusterName] = useState("Cluster");
   const [numberOfHosts, setNumberOfHosts] = useState(1);
   const [appName, setAppName] = useState<string>("");
   const [githubUrl, setGithubUrl] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const getNodeById = (id: string) => {
     return nodes.find((node) => node.id === id)?.data;
@@ -42,6 +49,8 @@ const Home: NextPage = () => {
     ++id;
     return "flow-node-" + String(id);
   };
+
+  console.log(nodes);
 
   const submit = async () => {
     const clusters: any = {};
@@ -91,9 +100,24 @@ const Home: NextPage = () => {
     });
 
     console.log(body);
-
-    const {data} = await axios.post('/submit', body);
+    setIsLoading(true)
+    const { data } = await axios.post("/submit", body);
+    setIsLoading(false)
     console.log(data);
+
+    for (var cluster of data) {
+      for (var lb of cluster["lbs"]) {
+        setNodes(
+          nodes.map((node) => {
+            if (node.data.label !== lb.name) {
+              return node;
+            }
+            node.data.ip = lb["lbURL"].replaceAll("'", "");
+            return node;
+          })
+        );
+      }
+    }
   };
 
   const onConnect = useCallback(
@@ -232,7 +256,7 @@ const Home: NextPage = () => {
           ? "Enter URL"
           : nodes.filter((node) => {
               return node.id === selectedNode.id;
-          })[0]?.data.githubUrl;
+            })[0]?.data.githubUrl;
       setAppName(appName);
       setGithubUrl(gitUrl);
     }
@@ -319,6 +343,12 @@ const Home: NextPage = () => {
               className="input-bordered input my-2 w-full max-w-xs"
             />
           </div>
+          <label>Load Balancer IP</label>
+          <input
+            value={selectedNode.data.ip}
+            disabled
+            className="input my-2 w-full max-w-xs"
+          />
         </div>
       );
     }
@@ -336,7 +366,7 @@ const Home: NextPage = () => {
           <div className="reactflow-wrapper" ref={reactFlowWrapper}></div>
           <div style={{ height: "100vh" }} className="flex">
             <div className="h-screen w-1/5 bg-gray-100">
-              <Sidebar submit={submit} />
+              <Sidebar submit={submit} isLoading={ isLoading } />
             </div>
             <div className={"h-screen" + rightPane ? "w-4/5" : "w-3/5"}>
               <ReactFlow

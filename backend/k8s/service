@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {image_name}-loadbalancer
+  name: {{image_name}}-loadbalancer
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
-    app: {image_name}-app
+    app: {{image_name}}-app
   ports:
-    - protocol: TCP
-      port: 5000
+    - name: http
+      protocol: TCP
+      port: 80 
       targetPort: 80

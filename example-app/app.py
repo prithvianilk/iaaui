@@ -1,18 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 
 app = Flask(__name__)
 
-dishes = []
-
-
-@app.route('/dish', methods=["GET", "POST"])
+@app.route('/hello', methods=["GET", "POST"])
 def get():
-    if request.method == "GET":
-        return jsonify(dishes)
-    elif request.method == "POST":
-        dishes.append(request.get_json())
-        return "OK", 200
+    return "<h1>This is my flask application</h1>"
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host="0.0.0.0", port=80)
