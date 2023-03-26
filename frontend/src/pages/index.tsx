@@ -39,6 +39,7 @@ const Home: NextPage = () => {
   const [numberOfHosts, setNumberOfHosts] = useState(1);
   const [appName, setAppName] = useState<string>("");
   const [githubUrl, setGithubUrl] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const getNodeById = (id: string) => {
     return nodes.find((node) => node.id === id)?.data;
@@ -99,8 +100,9 @@ const Home: NextPage = () => {
     });
 
     console.log(body);
-
+    setIsLoading(true)
     const { data } = await axios.post("/submit", body);
+    setIsLoading(false)
     console.log(data);
 
     for (var cluster of data) {
@@ -364,7 +366,7 @@ const Home: NextPage = () => {
           <div className="reactflow-wrapper" ref={reactFlowWrapper}></div>
           <div style={{ height: "100vh" }} className="flex">
             <div className="h-screen w-1/5 bg-gray-100">
-              <Sidebar submit={submit} />
+              <Sidebar submit={submit} isLoading={ isLoading } />
             </div>
             <div className={"h-screen" + rightPane ? "w-4/5" : "w-3/5"}>
               <ReactFlow
