@@ -47,10 +47,10 @@ def configure_aws():
 def submit():
 	data = request.get_json()
 	configure_aws()
-	check_cluster_change(data)
 	response = []
 
 	for cluster in data:
+		check_cluster_change(cluster)
 		cluster_resp = {"name":cluster['name'], "lbs":[]}
 
 		# creating folder
@@ -69,7 +69,7 @@ def submit():
 			time.sleep(30)
 
 			# geting lb url
-			lbURL = get_lb_endpoint(app['name'])
+			lbURL = get_lb_endpoint(app['name'],cluster["provider"])
 
 			# constructing response
 			cluster_resp['lbs'].append({"name":app['name'], "lbURL": lbURL})

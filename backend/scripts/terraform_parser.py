@@ -51,21 +51,20 @@ def create_cluster(path):
     os.system(f"terraform -chdir={path} apply -auto-approve")
     os.system("aws eks --profile yg --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)")
 
-def check_cluster_change(data):
+def check_cluster_change(cluster):
     os.makedirs(os.path.join(os.getcwd(),"temp_tf"),exist_ok=True)
-    for cluster in data:
-        if(cluster["provider"]=="on-prem"):
-            check=subprocess.run(["minikube","status"], text=True, capture_output=True)
-            if(check.stdout.find("Running")):
-                os.system("kubectl config use-context minikube")
-            else:
-                os.system(f"minikube start")
+    if(cluster["provider"]=="on-prem"):
+        check=subprocess.run(["minikube","status"], text=True, capture_output=True)
+        if(check.stdout.find("Running")):
+            os.system("kubectl config use-context minikube")
         else:
-            if not os.path.exists(os.path.join(os.getcwd(),"temp_tf",cluster['name'])):
+            os.system(f"minikube start")
+    else:
+        if not os.path.exists(os.path.join(os.getcwd(),"temp_tf",cluster['name'])):
+            create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
+        else:
+            with open(f"{os.getcwd()}/terraform/terraform.tfvars.json","r") as template_file:
+                template_file_data=json.load(template_file)
+            if template_file_data["desired_size"]!=cluster["numberOfHosts"]:
                 create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
-            else:
-                with open(f"{os.getcwd()}/terraform/terraform.tfvars.json","r") as template_file:
-                    template_file_data=json.load(template_file)
-                if template_file_data["desired_size"]!=cluster["numberOfHosts"]:
-                    create_terraform_files(cluster['name'],cluster['numberOfHosts'],"t2.small","node-group-1")
-                os.system(f"aws eks --profile yg --region ap-south-1 update-kubeconfig --name cluster-1-Hd4UpCB1")            
+            os.system(f"aws eks --profile yg --region ap-south-1 update-kubeconfig --name cluster-1-Hd4UpCB1")            
