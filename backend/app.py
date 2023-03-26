@@ -68,7 +68,7 @@ def submit():
 			time.sleep(30)
 
 			# geting lb url
-			lbURL = get_lb_endpoint(app['name'])
+			lbURL = get_lb_endpoint(app['name'],cluster["provider"])
 
 			# constructing response
 			cluster_resp['lbs'].append({"name":app['name'], "lbURL": lbURL})
