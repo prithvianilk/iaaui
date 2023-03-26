@@ -47,10 +47,10 @@ def configure_aws():
 def submit():
 	data = request.get_json()
 	configure_aws()
-	check_cluster_change(data)
 	response = []
 
 	for cluster in data:
+		check_cluster_change(data)
 		cluster_resp = {"name":cluster['name'], "lbs":[]}
 
 		# creating folder
